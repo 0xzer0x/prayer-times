@@ -1,0 +1,9 @@
+[Unit]
+Description=A job to retrive prayer times using wget
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/prayer-times.sh
+
+[Install]
+WantedBy=default.target
