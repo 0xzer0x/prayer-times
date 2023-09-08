@@ -7,19 +7,24 @@ prayers="$HOME/.local/share/prayers.json"
 # Parsing the data for the five salawat
 # use epoch seconds in order to calculate time difference
 # date -d $(jq ".data.timings.PRAYER" $prayers | bc) +%s
-fajr=$(date -d $(jq ".data.timings.Fajr" $prayers | bc) +%s)
-dhuhr=$(date -d $(jq ".data.timings.Dhuhr" $prayers | bc) +%s)
-asr=$(date -d $(jq ".data.timings.Asr" $prayers | bc) +%s)
-maghrib=$(date -d $(jq ".data.timings.Maghrib" $prayers | bc) +%s)
-isha=$(date -d $(jq ".data.timings.Isha" $prayers | bc) +%s)
+fajr=$(date -d "$(jq ".data.timings.Fajr" $prayers | bc)" +%s)
+dhuhr=$(date -d "$(jq ".data.timings.Dhuhr" $prayers | bc)" +%s)
+asr=$(date -d "$(jq ".data.timings.Asr" $prayers | bc)" +%s)
+maghrib=$(date -d "$(jq ".data.timings.Maghrib" $prayers | bc)" +%s)
+isha=$(date -d "$(jq ".data.timings.Isha" $prayers | bc)" +%s)
 
 # Get the current time
 currenttime=$(date +%s)
+day=$(date +%a)
 
 if [ $currenttime -ge $fajr ] && [ $currenttime -lt $dhuhr ]; then
-    currentprayer="Fajr"
-    nextprayer="Dhuhr"
     nexttime=$dhuhr
+    currentprayer="Fajr"
+    if [[ "$day" == "Fri" ]]; then
+    	nextprayer="Jumuaa"
+    else
+	nextprayer="Dhuhr"
+    fi
 
 elif [ $currenttime -ge $dhuhr ] && [ $currenttime -lt $asr ]; then
     currentprayer="Dhuhr"

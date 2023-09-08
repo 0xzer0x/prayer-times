@@ -19,7 +19,9 @@ year=$(jq ".data.date.hijri.year" $prayers | bc | awk '{$1=$1};1')
 
 
 # YAD dialog text
-printf "📅 $day_ar، $daynumber-$month_ar-$year\n۞ الفجر\t\t$fajr\n۞ الشروق\t$sunrise\n۞ الظهر\t\t$dhuhr\n۞ العصر\t\t$asr\n۞ المغرب\t$maghrib\n۞ العشاء\t\t$isha\n"
+
+# AR
+printf "📅 $day_ar،$daynumber-$month_ar-$year\n۞ الفجر\t\t$fajr\n۞ الشروق\t$sunrise\n۞ الظهر\t\t$dhuhr\n۞ العصر\t\t$asr\n۞ المغرب\t$maghrib\n۞ العشاء\t\t$isha\n"
 
 # EN
-# printf "📅 $day،\n$daynumber-$month-$year\n۞ Fajr\t\t$fajr\n۞ Sunrise\t$sunrise\n۞ Dhuhr\t\t$dhuhr\n۞ Asr\t\t$asr\n۞ Maghrib\t$maghrib\n۞ Isha\t\t$isha\n"
+#printf "📅 $day,\n$daynumber-$month-$year\n۞ Fajr\t\t$fajr\n۞ Sunrise\t$sunrise\n۞ Dhuhr\t$dhuhr\n۞ Asr\t\t$asr\n۞ Maghrib\t$maghrib\n۞ Isha\t\t$isha\n"
