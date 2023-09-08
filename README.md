@@ -43,6 +43,10 @@ interval = 60
 label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
 ```
 
+### Yad
+
+- Configure your window manager to show the Yad window in floating mode and you're all set!
+
 ### References
 
 - Nofarah Tech | نوفرة تك ([video](https://www.youtube.com/watch?v=BnSXo5p1ZLw)) ([dotfiles](https://github.com/HishamAHai/dotfiles/tree/main/.local/bin))
