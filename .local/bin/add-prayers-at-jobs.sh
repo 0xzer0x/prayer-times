@@ -5,7 +5,7 @@ prayers="$HOME/.local/share/prayers.json"
 # WARNING: THIS SCRIPTS REMOVES ALL JOBS SCHEDULED USING AT
 # ADJUST ACCORDINGLY
 if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
-    for i in $(at -l | awk '{ print $1 }'); do
+    for i in $(at -q p -l | awk '{ print $1 }'); do
         atrm $i
     done
 fi
