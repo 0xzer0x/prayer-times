@@ -1,14 +1,18 @@
 # Linux statusbar prayer times
 
-- The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar and dunst. 
+![polybar module](screenshots/polybar-module.png)
+
+- The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar, dunst, and yad. 
 
 ### Procedures
 
-1.  Copy files to their corresponding location on your system
+1. Copy files to their corresponding location on your system
 
-2.  Add systemd user .service & .timer
+2. Modify the location latitude and longitude in `.local/bin/prayer-times.sh` to match your location
 
-3. Modify notification system config if using another notifications daemon
+3. Activate systemd user service & timer units
+
+4. Modify notification system config if using another notifications daemon
 
 ### Systemd
 
