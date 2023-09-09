@@ -8,6 +8,14 @@
 
 - The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar, dunst, and yad. 
 
+### Dependencies
+- `wget`
+- `at`
+- `yad`
+- `mpv`
+- `dunst` (optional)
+- `polybar` (optional)
+
 ### Procedures
 
 1. Copy files to their corresponding location on your system
