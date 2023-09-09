@@ -22,9 +22,9 @@
 
 2. Modify the location latitude and longitude in `.local/bin/prayer-times.sh` to match your location
 
-3. Activate systemd user service & timer units
+3. Modify the placeholder `USERNAME` in `.config/dunst/dunstrc` to match you username
 
-4. Modify notification system config if using another notifications daemon
+4. Activate systemd user service & timer units
 
 ### Systemd
 

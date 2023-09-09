@@ -3,4 +3,4 @@ always_run_scripts = true
 
 [play_athan]
 summary = "Prayer Times"
-script = "$HOME/.local/bin/mpv-athan.sh"
+script = "/home/USERNAME/.local/bin/mpv-athan.sh"
