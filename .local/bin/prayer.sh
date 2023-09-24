@@ -4,18 +4,20 @@ nextprayer=""
 currentprayer=""
 prayers="$HOME/.local/share/prayers.json"
 
-# Parsing the data for the five salawat
-# use epoch seconds in order to calculate time difference
-# date -d $(jq ".data.timings.PRAYER" $prayers | bc) +%s
-fajr=$(date -d "$(jq ".data.timings.Fajr" $prayers | bc)" +%s)
-dhuhr=$(date -d "$(jq ".data.timings.Dhuhr" $prayers | bc)" +%s)
-asr=$(date -d "$(jq ".data.timings.Asr" $prayers | bc)" +%s)
-maghrib=$(date -d "$(jq ".data.timings.Maghrib" $prayers | bc)" +%s)
-isha=$(date -d "$(jq ".data.timings.Isha" $prayers | bc)" +%s)
-
 # Get the current time
 currenttime=$(date +%s)
 day=$(date +%a)
+day_idx=$(( $(date +%d | awk '/^0.*/{sub("0","")}{print}') - 1 ))
+
+# Parsing the.datafor the five salawat
+# use epoch seconds in order to calculate time difference
+# date -d $(jq ".data[DAY - 1].timings.PRAYER" $prayers | bc) +%s
+fajr=$(date -d "$(jq ".data[$day_idx].timings.Fajr" $prayers | bc)" +%s)
+dhuhr=$(date -d "$(jq ".data[$day_idx].timings.Dhuhr" $prayers | bc)" +%s)
+asr=$(date -d "$(jq ".data[$day_idx].timings.Asr" $prayers | bc)" +%s)
+maghrib=$(date -d "$(jq ".data[$day_idx].timings.Maghrib" $prayers | bc)" +%s)
+isha=$(date -d "$(jq ".data[$day_idx].timings.Isha" $prayers | bc)" +%s)
+
 
 if [ $currenttime -ge $fajr ] && [ $currenttime -lt $dhuhr ]; then
     nexttime=$dhuhr
@@ -27,24 +29,24 @@ if [ $currenttime -ge $fajr ] && [ $currenttime -lt $dhuhr ]; then
     fi
 
 elif [ $currenttime -ge $dhuhr ] && [ $currenttime -lt $asr ]; then
-    currentprayer="Dhuhr"
-    nextprayer="Asr"
     nexttime=$asr
+    nextprayer="Asr"
+    currentprayer="Dhuhr"
 
 elif [ $currenttime -ge $asr ] && [ $currenttime -lt $maghrib ]; then
-    currentprayer="Asr"
-    nextprayer="Maghrib"
     nexttime=$maghrib
+    nextprayer="Maghrib"
+    currentprayer="Asr"
 
 elif [ $currenttime -ge $maghrib ] && [ $currenttime -lt $isha ]; then
-    currentprayer="Maghrib"
-    nextprayer="Isha"
     nexttime=$isha
+    nextprayer="Isha"
+    currentprayer="Maghrib"
 
 elif [ $currenttime -ge $isha ] || [ $currenttime -lt $fajr ]; then
-    currentprayer="Isha"
-    nextprayer="Fajr"
     nexttime=$fajr
+    nextprayer="Fajr"
+    currentprayer="Isha"
 fi
 
 # Calculate the remaining time to the next prayer (or iftar in ramadan and the fast duration is ramadan)
