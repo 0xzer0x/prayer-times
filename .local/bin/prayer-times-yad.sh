@@ -1,7 +1,9 @@
 #!/bin/sh
 
-if [[ -z "$(pgrep yad)" ]]; then
+yad_pid=$(xprop _NET_WM_PID -name Prayers 2>/dev/null | awk '{print $3}')
+
+if [[ -z "$yad_pid" ]]; then
 	yad --no-buttons --text "<span font-size='large'>$($HOME/.local/bin/prayers.sh)</span>" --title "Prayers"
 else
-	killall yad
+	kill $yad_pid
 fi
