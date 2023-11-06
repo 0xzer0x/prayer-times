@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 yad_pid=$(xprop _NET_WM_PID -name Prayers 2>/dev/null | awk '{print $3}')
 

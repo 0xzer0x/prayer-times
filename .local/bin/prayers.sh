@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 prayers="$HOME/.local/share/prayers.json"
 

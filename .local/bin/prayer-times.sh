@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Get some parameters like the location and the school to be used
 # when calculating the fajr and isha angle
