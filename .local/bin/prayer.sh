@@ -9,7 +9,7 @@ currenttime=$(date +%s)
 day=$(date +%a)
 day_idx=$(( $(date +%d | awk '/^0.*/{sub("0","")}{print}') - 1 ))
 
-# Parsing the.datafor the five salawat
+# Parsing the data for the five salawat
 # use epoch seconds in order to calculate time difference
 # date -d $(jq ".data[DAY - 1].timings.PRAYER" $prayers | bc) +%s
 fajr=$(date -d "$(jq ".data[$day_idx].timings.Fajr" $prayers | bc)" +%s)
@@ -25,7 +25,7 @@ if [ $currenttime -ge $fajr ] && [ $currenttime -lt $dhuhr ]; then
     if [[ "$day" == "Fri" ]]; then
     	nextprayer="Jumuaa"
     else
-	nextprayer="Dhuhr"
+	    nextprayer="Dhuhr"
     fi
 
 elif [ $currenttime -ge $dhuhr ] && [ $currenttime -lt $asr ]; then
@@ -62,4 +62,8 @@ remain=$(date -u -d "@$(( "$nexttime" - "$currenttime" ))" "+%H:%M")
 #printf "$currentprayer ($remain)"
 
 # Get the next fard
-printf "$nextprayer in $remain"
+if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+  printf "$nextprayer in $remain"
+else
+  printf '{ "text": "%s", "class": "%s" }\n' "$nextprayer in $remain" "$nextprayer"
+fi
