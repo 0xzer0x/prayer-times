@@ -5,18 +5,17 @@ prayers="$HOME/.local/share/prayers.json"
 # WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT
 # ADJUST ACCORDINGLY
 if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
-    for i in $(at -q p -l | awk '{ print $1 }'); do
-        atrm $i
-    done
+	for i in $(at -q p -l | awk '{ print $1 }'); do
+		atrm "$i"
+	done
 fi
 
-day_idx=$(( $(date +%d | awk '/^0.*/ {sub("0","")}{print}') - 1 ))
-fajr=$(date -d "$(jq ".data[$day_idx].timings.Fajr" $prayers | bc)" '+%H:%M %F')
-dhuhr=$(date -d "$(jq ".data[$day_idx].timings.Dhuhr" $prayers | bc)" '+%H:%M %F')
-asr=$(date -d "$(jq ".data[$day_idx].timings.Asr" $prayers | bc)" '+%H:%M %F')
-maghrib=$(date -d "$(jq ".data[$day_idx].timings.Maghrib" $prayers | bc)" '+%H:%M %F')
-isha=$(date -d "$(jq ".data[$day_idx].timings.Isha" $prayers | bc)" '+%H:%M %F')
-
+day_idx=$(($(date +%d | awk '/^0.*/ {sub("0","")}{print}') - 1))
+fajr=$(date -d "$(jq ".data[$day_idx].timings.Fajr" "$prayers" | bc)" '+%H:%M %F')
+dhuhr=$(date -d "$(jq ".data[$day_idx].timings.Dhuhr" "$prayers" | bc)" '+%H:%M %F')
+asr=$(date -d "$(jq ".data[$day_idx].timings.Asr" "$prayers" | bc)" '+%H:%M %F')
+maghrib=$(date -d "$(jq ".data[$day_idx].timings.Maghrib" "$prayers" | bc)" '+%H:%M %F')
+isha=$(date -d "$(jq ".data[$day_idx].timings.Isha" "$prayers" | bc)" '+%H:%M %F')
 
 kill_cmd="kill \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
 

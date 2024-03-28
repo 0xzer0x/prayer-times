@@ -15,15 +15,15 @@ current_year=$(date +%Y)
 fetch_prayers=""
 
 if [[ -f $prayers ]]; then
-	available_month=$(jq ".data[0].date.gregorian.month.number" $prayers)
+	available_month=$(jq ".data[0].date.gregorian.month.number" "$prayers")
 else
 	fetch_prayers=1
 fi
 
-if [[ "$fetch_prayers" || $available_month != $current_month ]]; then
+if [[ "$fetch_prayers" || "$available_month" != "$current_month" ]]; then
 	# Documentation: https://aladhan.com/prayer-times-api#GetCalendar
-	wget -O $prayers "http://api.aladhan.com/v1/calendar/$current_year/$current_month?latitude=$lat&longitude=$long&method=$method"
+	wget -O "$prayers" "http://api.aladhan.com/v1/calendar/$current_year/$current_month?latitude=$lat&longitude=$long&method=$method"
 fi
 
 echo "Creating at jobs for prayer notification..."
-$HOME/.local/bin/add-prayers-at-jobs.sh
+"$HOME/.local/bin/add-prayers-at-jobs.sh"

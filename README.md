@@ -5,10 +5,10 @@
 ![yad en](screenshots/yad-en-widget.png)
 ![yad widget](screenshots/yad-widget.png)
 
-
-- The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar, dunst, and yad. 
+- The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar, dunst, and yad.
 
 ### Dependencies
+
 - `wget`
 - `at`
 - `yad`
@@ -19,11 +19,8 @@
 ### Procedures
 
 1. Copy files to their corresponding location on your system
-
 2. Modify the location latitude and longitude in `.local/bin/prayer-times.sh` to match your location
-
 3. Modify the placeholder `USERNAME` in `.config/dunst/dunstrc` to match you username
-
 4. Activate systemd user service & timer units
 
 ### Systemd
@@ -35,12 +32,14 @@ systemctl --user enable --now prayer-times.service
 systemctl --user enable --now prayer-times.timer
 ```
 
+### Yad
+
+- Configure your window manager to show the Yad window in floating mode and you're all set!
+
 ### Polybar
 
 - Add the following to your [polybar config](https://github.com/polybar/polybar/wiki/Configuration) file (~/.config/polybar/config\[.ini\]) then add the module
-
 - Modify colors according to your liking (replace #83CAFA)
-
 - Works best with [Nerd Fonts](https://nerdfonts.com)
 
 ```ini
@@ -51,9 +50,19 @@ interval = 60
 label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
 ```
 
-### Yad
+### Waybar
 
-- Configure your window manager to show the Yad window in floating mode and you're all set!
+- Add the following custom module to your [waybar config](https://github.com/Alexays/Waybar/wiki/Configuration) (~/.config/waybar/config)
+
+```json
+"custom/prayers": {
+  "interval": 60,
+  "return-type": "json",
+  "exec": "$HOME/.local/bin/prayer.sh",
+  "on-click": "$HOME/.local/bin/prayer-times-yad.sh",
+  "format": "󱠧  {}",
+}
+```
 
 ### References
 
