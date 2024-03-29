@@ -1,5 +1,5 @@
 [Unit]
-Description=A job to retrive prayer times using wget
+Description=A job to retrive prayer times using curl
 
 [Service]
 Type=simple

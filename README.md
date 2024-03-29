@@ -13,34 +13,33 @@
 - `at`
 - `yad`
 - `mpv`
-- `dunst` (optional)
-- `polybar` (optional)
+- `dunst` (x11)
+- `polybar` (x11)
+- `mako` (wayland)
+- `waybar` (wayland)
+- [Nerd Font](https://www.nerdfonts.com/) (optional)
 
 ### Procedures
 
 1. Copy files to their corresponding location on your system
 2. Modify the location latitude and longitude in `.local/bin/prayer-times.sh` to match your location
-3. Modify the placeholder `USERNAME` in `.config/dunst/dunstrc` to match you username
-4. Activate systemd user service & timer units
+3. Activate systemd user unit
+4. Add statusbar module
+5. Add notification daemon rule
+6. Configure Yad dialog to show in floating mode
 
-### Systemd
+### Systemd Unit
 
-- Run the following to activate the service for your user
+- Run one of the following commands to activate the service for your user
+  - `systemctl --user enable --now prayer-times.service # start on boot`
+  - `systemctl --user enable --now prayer-times.timer # start on boot + every 8 hours`
 
-```sh
-systemctl --user enable --now prayer-times.service
-systemctl --user enable --now prayer-times.timer
-```
+### Statusbar Module
 
-### Yad
+#### Polybar
 
-- Configure your window manager to show the Yad window in floating mode and you're all set!
-
-### Polybar
-
-- Add the following to your [polybar config](https://github.com/polybar/polybar/wiki/Configuration) file (~/.config/polybar/config\[.ini\]) then add the module
+- Add the following to your [polybar config](https://github.com/polybar/polybar/wiki/Configuration) file (`~/.config/polybar/config[.ini]`) then add the module
 - Modify colors according to your liking (replace #83CAFA)
-- Works best with [Nerd Fonts](https://nerdfonts.com)
 
 ```ini
 [module/prayers]
@@ -50,9 +49,9 @@ interval = 60
 label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
 ```
 
-### Waybar
+#### Waybar (Wayland)
 
-- Add the following custom module to your [waybar config](https://github.com/Alexays/Waybar/wiki/Configuration) (~/.config/waybar/config)
+- Add the following custom module to your [waybar config](https://github.com/Alexays/Waybar/wiki/Configuration) (`~/.config/waybar/config`)
 
 ```json
 "custom/prayers": {
@@ -64,9 +63,44 @@ label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%
 }
 ```
 
+### Notification Athan
+
+#### Dunst
+
+- Add the following rule to your dunstrc file (`~/.config/dunst/dunstrc`)
+- Replace `USERNAME` with your account username
+
+```ini
+[play_athan]
+summary = "Prayer Times"
+script = "/home/USERNAME/.local/bin/mpv-athan.sh"
+```
+
+#### Mako (Wayland)
+
+- Add the following criteria/rule to mako config (`~/.config/mako/config`)
+
+```ini
+[summary="Prayer Times"]
+on-notify=exec $HOME/.local/bin/mpv-athan.sh
+```
+
+### Yad Dialog
+
+- Window Title: `Prayers`
+- Configure your window manager to show the Yad window in floating mode and you're all set!
+- Example window rule for [Hyprland](https://hyprland.org/)
+
+```ini
+windowrulev2 = float,class:(yad)
+windowrulev2 = move cursor -50% 30,title:(Prayers)
+```
+
 ### References
 
 - Nofarah Tech | نوفرة تك ([video](https://www.youtube.com/watch?v=BnSXo5p1ZLw)) ([dotfiles](https://github.com/HishamAHai/dotfiles/tree/main/.local/bin))
 - [Aladhan API](https://aladhan.com/prayer-times-api#GetTimings)
 - [Polybar config](https://github.com/polybar/polybar/wiki/Module:-script)
 - [Default dunstrc](https://github.com/dunst-project/dunst/blob/master/dunstrc)
+- [Mako(5)](https://github.com/emersion/mako/blob/master/doc/mako.5.scd)
+- [Waybar Custom Module](https://github.com/Alexays/Waybar/wiki/Module:-Custom)

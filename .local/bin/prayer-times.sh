@@ -4,14 +4,11 @@
 # when calculating the fajr and isha angle
 lat='30.001780'
 long='31.290419'
-city="Cairo"
-country="Egypt"
 method="5" # https://api.aladhan.com/v1/methods
-adjustment="0"
 prayers="$HOME/.local/share/prayers.json"
-available_month=""
 current_month=$(date +%m | awk '/^0.*/ {sub("0","")}{print}')
 current_year=$(date +%Y)
+available_month=""
 fetch_prayers=""
 
 if [[ -f $prayers ]]; then
