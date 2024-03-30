@@ -17,7 +17,7 @@ asr=$(date -d "$(jq ".data[$day_idx].timings.Asr" "$prayers" | bc)" '+%H:%M %F')
 maghrib=$(date -d "$(jq ".data[$day_idx].timings.Maghrib" "$prayers" | bc)" '+%H:%M %F')
 isha=$(date -d "$(jq ".data[$day_idx].timings.Isha" "$prayers" | bc)" '+%H:%M %F')
 
-kill_cmd="kill \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
+kill_cmd="kill -1 \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
 
 fajr_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Fajr prayer 🕌" -t 30000)" == "2" ]]'
 dhuhr_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Dhuhr prayer 🕌" -t 30000)" == "2" ]]'
