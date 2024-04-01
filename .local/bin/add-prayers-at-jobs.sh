@@ -1,32 +1,27 @@
 #!/bin/bash
 
 prayers="$HOME/.local/share/prayers.json"
+kill_cmd="kill -1 \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
 
 # WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT
 # ADJUST ACCORDINGLY
+echo "-- removing all jobs in queue 'p'"
 if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
 	for i in $(at -q p -l | awk '{ print $1 }'); do
 		atrm "$i"
 	done
 fi
 
-day_idx=$(($(date +%d | awk '/^0.*/ {sub("0","")}{print}') - 1))
-fajr=$(date -d "$(jq ".data[$day_idx].timings.Fajr" "$prayers" | bc)" '+%H:%M %F')
-dhuhr=$(date -d "$(jq ".data[$day_idx].timings.Dhuhr" "$prayers" | bc)" '+%H:%M %F')
-asr=$(date -d "$(jq ".data[$day_idx].timings.Asr" "$prayers" | bc)" '+%H:%M %F')
-maghrib=$(date -d "$(jq ".data[$day_idx].timings.Maghrib" "$prayers" | bc)" '+%H:%M %F')
-isha=$(date -d "$(jq ".data[$day_idx].timings.Isha" "$prayers" | bc)" '+%H:%M %F')
+day_idx=$(($(date +%-d) - 1))
 
-kill_cmd="kill -1 \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
+declare -A ptimes
+ptimes["Fajr"]=$(date -d "$(jq -r ".data[$day_idx].timings.Fajr" "$prayers")" '+%H:%M %F')
+ptimes["Dhuhr"]=$(date -d "$(jq -r ".data[$day_idx].timings.Dhuhr" "$prayers")" '+%H:%M %F')
+ptimes["Asr"]=$(date -d "$(jq -r ".data[$day_idx].timings.Asr" "$prayers")" '+%H:%M %F')
+ptimes["Maghrib"]=$(date -d "$(jq -r ".data[$day_idx].timings.Maghrib" "$prayers")" '+%H:%M %F')
+ptimes["Isha"]=$(date -d "$(jq -r ".data[$day_idx].timings.Isha" "$prayers")" '+%H:%M %F')
 
-fajr_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Fajr prayer 🕌" -t 30000)" == "2" ]]'
-dhuhr_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Dhuhr prayer 🕌" -t 30000)" == "2" ]]'
-asr_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Asr prayer 🕌" -t 30000)" == "2" ]]'
-maghrib_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Maghrib prayer 🕌" -t 30000)" == "2" ]]'
-isha_cmd='[[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for Isha prayer 🕌" -t 30000)" == "2" ]]'
-
-echo "$fajr_cmd && $kill_cmd" | at -q p "$fajr"
-echo "$dhuhr_cmd && $kill_cmd" | at -q p "$dhuhr"
-echo "$asr_cmd && $kill_cmd" | at -q p "$asr"
-echo "$maghrib_cmd && $kill_cmd" | at -q p "$maghrib"
-echo "$isha_cmd && $kill_cmd" | at -q p "$isha"
+for prayer in "${!ptimes[@]}"; do
+	echo "-- creating at job for $prayer prayer"
+	printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$kill_cmd" | at -q p "${ptimes[$prayer]}"
+done
