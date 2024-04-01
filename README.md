@@ -46,7 +46,7 @@
 type = custom/script
 exec = $HOME/.local/bin/prayer.sh
 interval = 60
-label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
+label = %{A:$HOME/.local/bin/prayers-display.sh yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
 ```
 
 #### Waybar (Wayland)
@@ -58,7 +58,7 @@ label = %{A:$HOME/.local/bin/prayer-times-yad.sh:}%{F#83CAFA}󱠧 %{F-} %output%
   "interval": 60,
   "return-type": "json",
   "exec": "$HOME/.local/bin/prayer.sh",
-  "on-click": "$HOME/.local/bin/prayer-times-yad.sh",
+  "on-click": "$HOME/.local/bin/prayers-display.sh yad",
   "format": "󱠧  {}",
 }
 ```
