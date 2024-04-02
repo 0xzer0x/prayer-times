@@ -1,11 +1,11 @@
-# Linux statusbar prayer times
+# Statusbar Prayer Times
 
 ![polybar module](screenshots/polybar-module.png)
 <br/>
 ![yad en](screenshots/yad-en-widget.png)
 ![yad widget](screenshots/yad-widget.png)
 
-- The prayer times scripts are a modified version of [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts to work with polybar, dunst, and yad.
+- The prayer times script is inspired by [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts. In Addition, I added support for statusbars like [waybar](https://github.com/Alexays/Waybar) and desktop notifications.
 
 ### Dependencies
 
