@@ -1,9 +1,9 @@
 [Unit]
-Description=A job to retrive prayer times using curl
+Description=A job to retrive prayer times using wget
 
 [Service]
 Type=simple
-ExecStart=%h/.local/bin/prayer-times.sh
+ExecStart=%h/.local/bin/prayer-times sync
 
 [Install]
 WantedBy=default.target

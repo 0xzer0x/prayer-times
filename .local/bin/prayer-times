@@ -1,0 +1,233 @@
+#!/bin/bash
+
+# ----- Parameters ------ #
+# Coordinates: https://www.mapcoordinates.net/en
+lat='30.001780'
+long='31.290419'
+# Calculation Method: https://api.aladhan.com/v1/methods
+method='5'
+# ----------------------- #
+prayers=("Fajr" "Dhuhr" "Asr" "Maghrib" "Isha")
+prayers_json="$HOME/.local/share/prayers.json"
+declare -A epochtimes
+declare -A date
+date=(
+	[day_idx]=$(($(date +%-d) - 1))
+	[weekday]=$(date +%a)
+	[month]=$(date +%-m)
+	[year]=$(date +%Y)
+)
+
+check() {
+	local available_month
+	if [[ -r $prayers_json ]]; then
+		available_month=$(jq -r ".data[0].date.gregorian.month.number" "$prayers_json")
+	else
+		local fetch_prayers=1
+	fi
+
+	if [[ "$fetch_prayers" || "$available_month" != "${date[month]}" ]]; then
+		echo "-- fetching current month (${date[month]}) prayer calendar"
+		# Documentation: https://aladhan.com/prayer-times-api#GetCalendar
+		wget -O "$prayers_json" "http://api.aladhan.com/v1/calendar/${date[year]}/${date[month]}?latitude=$lat&longitude=$long&method=$method"
+	fi
+}
+
+add-jobs() {
+	local kill_cmd="kill -1 \$(ps aux | grep qatami | awk 'FNR==1{print \$2}')"
+
+	# WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT (ADJUST ACCORDINGLY)
+	echo "-- removing all jobs in queue 'p'"
+	if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
+		for i in $(at -q p -l | awk '{ print $1 }'); do
+			atrm "$i"
+		done
+	fi
+
+	for prayer in "${prayers[@]}"; do
+		echo "-- creating at job for $prayer prayer"
+		printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$kill_cmd" | at -q p "$(timeof "$prayer" '%H:%M %F')"
+	done
+}
+
+timeof() {
+	[[ "$#" -lt "1" ]] && echo "atleast 1 argument is needed" && return 1
+	echo -n "$(date -d "$(jq -r ".data[${date[day_idx]}].timings.$1" "$prayers_json")" "+${2:-%I:%M}")"
+}
+
+hijri() {
+	case "$1" in
+	weekday)
+		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.ar" "$prayers_json")"
+		;;
+	day)
+		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.day" "$prayers_json")"
+		;;
+	month)
+		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.ar" "$prayers_json")"
+		;;
+	year)
+		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.year" "$prayers_json")"
+		;;
+	*)
+		echo "unsupported argument: $1" && return 1
+		;;
+	esac
+}
+
+settimes() {
+	# return if array already populated
+	[[ "${#epochtimes[@]}" -gt 0 ]] && return 0
+
+	epochtimes=(
+		[now]=$(date +%s)
+		[fajr]=$(timeof Fajr %s)
+		[dhuhr]=$(timeof Dhuhr %s)
+		[asr]=$(timeof Asr %s)
+		[maghrib]=$(timeof Maghrib %s)
+		[isha]=$(timeof Isha %s)
+	)
+
+	if [[ ${epochtimes[now]} -ge ${epochtimes[fajr]} && ${epochtimes[now]} -lt ${epochtimes[dhuhr]} ]]; then
+		epochtimes[next]=${epochtimes[dhuhr]}
+		currentprayer="Fajr"
+		if [[ "${date[weekday]}" == "Fri" ]]; then
+			nextprayer="Jumuaa"
+		else
+			nextprayer="Dhuhr"
+		fi
+
+	elif [[ ${epochtimes[now]} -ge ${epochtimes[dhuhr]} && ${epochtimes[now]} -lt ${epochtimes[asr]} ]]; then
+		epochtimes[next]=${epochtimes[asr]}
+		currentprayer="Dhuhr"
+		nextprayer="Asr"
+
+	elif [[ ${epochtimes[now]} -ge ${epochtimes[asr]} && ${epochtimes[now]} -lt ${epochtimes[maghrib]} ]]; then
+		epochtimes[next]=${epochtimes[maghrib]}
+		currentprayer="Asr"
+		nextprayer="Maghrib"
+
+	elif [[ ${epochtimes[now]} -ge ${epochtimes[maghrib]} && ${epochtimes[now]} -lt ${epochtimes[isha]} ]]; then
+		epochtimes[next]=${epochtimes[isha]}
+		currentprayer="Maghrib"
+		nextprayer="Isha"
+
+	elif [[ ${epochtimes[now]} -ge ${epochtimes[isha]} || ${epochtimes[now]} -lt ${epochtimes[fajr]} ]]; then
+		epochtimes[next]=${epochtimes[fajr]}
+		currentprayer="Isha"
+		nextprayer="Fajr"
+	fi
+}
+
+print() {
+	printf "📅 %s،%s\n۞ الفجر\t%s\n۞ الشروق\t%s\n۞ الظهر\t%s\n۞ العصر\t%s\n۞ المغرب\t%s\n۞ العشاء\t%s" \
+		"$(hijri weekday)" \
+		"$(hijri day)-$(hijri month)-$(hijri year)" \
+		"$(timeof Fajr)" \
+		"$(timeof Sunrise)" \
+		"$(timeof Dhuhr)" \
+		"$(timeof Asr)" \
+		"$(timeof Maghrib)" \
+		"$(timeof Isha)"
+}
+
+yad-text() {
+	printf "<span font-size='large'>📅 <b>%s،%s</b>\n۞ الفجر\t\t%s\n۞ الشروق\t%s\n۞ الظهر\t\t%s\n۞ العصر\t\t%s\n۞ المغرب\t%s\n۞ العشاء\t\t%s</span>" \
+		"$(hijri weekday)" \
+		"$(hijri day)-$(hijri month)-$(hijri year)" \
+		"$(timeof Fajr)" \
+		"$(timeof Sunrise)" \
+		"$(timeof Dhuhr)" \
+		"$(timeof Asr)" \
+		"$(timeof Maghrib)" \
+		"$(timeof Isha)"
+}
+
+yad-toggle() {
+	if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+		yad_pid=$(xprop _NET_WM_PID -name Prayers 2>/dev/null | awk '{print $3}')
+	elif [[ "$XDG_CURRENT_DESKTOP" == "Hyprland" ]]; then
+		yad_pid=$(hyprctl clients | awk '/title: Prayers/ {found=1} found && $0 ~ /pid/ {print $2}')
+	fi
+
+	if [[ -z "$yad_pid" ]]; then
+		yad --no-buttons --text-width=10 --text "$(yad-text)" --title "Prayers"
+	else
+		kill "$yad_pid"
+	fi
+}
+
+current() {
+	settimes
+	echo "$currentprayer"
+}
+
+next() {
+	settimes
+	echo "$nextprayer"
+}
+
+remaining() {
+	settimes
+	local remain
+	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M:%S")
+	echo "$remain"
+}
+
+status() {
+	settimes
+	local remain
+	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M")
+	local next_text="$nextprayer in $remain"
+
+	if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+		echo -n "$next_text"
+	else
+		printf '{ "text": "%s", "class": "%s" }\n' "$next_text" "$nextprayer"
+	fi
+}
+
+case "$1" in
+check)
+	check
+	;;
+jobs)
+	add-jobs
+	;;
+sync)
+	check
+	add-jobs
+	;;
+print)
+	print
+	;;
+current)
+	current
+	;;
+next)
+	next
+	;;
+remaining)
+	remaining
+	;;
+status)
+	status
+	;;
+yad)
+	yad-toggle
+	;;
+*)
+	echo "Usage: $(basename "$0") [command]"
+	echo "Command:"
+	echo "  check      Check if prayer time data needs to be fetched"
+	echo "  jobs       Add prayer time notifications as at jobs"
+	echo "  sync       Check and sync prayer time data, and add notifications"
+	echo "  print      Print prayer times"
+	echo "  current    Get the current prayer"
+	echo "  next       Get the next prayer"
+	echo "  remaining  Get the remaining time for the next prayer"
+	echo "  status     Get the status message indicating the next prayer"
+	echo "  yad        Toggle the yad window showing prayer times"
+	exit 1
+	;;
+esac

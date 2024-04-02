@@ -22,7 +22,7 @@
 ### Procedures
 
 1. Copy files to their corresponding location on your system
-2. Modify the location latitude and longitude in `.local/bin/prayer-times.sh` to match your location
+2. Modify the location latitude and longitude in `.local/bin/prayer-times` to match your location
 3. Activate systemd user unit
 4. Add statusbar module
 5. Add notification daemon rule
@@ -44,9 +44,9 @@
 ```ini
 [module/prayers]
 type = custom/script
-exec = $HOME/.local/bin/prayer.sh
+exec = $HOME/.local/bin/prayer-times status
 interval = 60
-label = %{A:$HOME/.local/bin/prayers-display.sh yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
+label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A}
 ```
 
 #### Waybar (Wayland)
@@ -57,8 +57,8 @@ label = %{A:$HOME/.local/bin/prayers-display.sh yad:}%{F#83CAFA}󱠧 %{F-} %outp
 "custom/prayers": {
   "interval": 60,
   "return-type": "json",
-  "exec": "$HOME/.local/bin/prayer.sh",
-  "on-click": "$HOME/.local/bin/prayers-display.sh yad",
+  "exec": "$HOME/.local/bin/prayer-times status",
+  "on-click": "$HOME/.local/bin/prayer-times yad",
   "format": "󱠧  {}",
 }
 ```
@@ -73,7 +73,7 @@ label = %{A:$HOME/.local/bin/prayers-display.sh yad:}%{F#83CAFA}󱠧 %{F-} %outp
 ```ini
 [play_athan]
 summary = "Prayer Times"
-script = "/home/USERNAME/.local/bin/mpv-athan.sh"
+script = "/home/USERNAME/.local/bin/play-athan"
 ```
 
 #### Mako (Wayland)
@@ -82,7 +82,7 @@ script = "/home/USERNAME/.local/bin/mpv-athan.sh"
 
 ```ini
 [summary="Prayer Times"]
-on-notify=exec $HOME/.local/bin/mpv-athan.sh
+on-notify=exec $HOME/.local/bin/play-athan
 ```
 
 ### Yad Dialog
