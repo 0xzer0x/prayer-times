@@ -57,7 +57,7 @@ label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A
 "custom/prayers": {
   "interval": 60,
   "return-type": "json",
-  "exec": "$HOME/.local/bin/prayer-times status",
+  "exec": "$HOME/.local/bin/prayer-times waybar",
   "on-click": "$HOME/.local/bin/prayer-times yad",
   "format": "󱠧  {}",
 }

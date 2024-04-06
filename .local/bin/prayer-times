@@ -179,12 +179,15 @@ status() {
 	local remain
 	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M")
 	local next_text="$nextprayer in $remain"
+	echo "$next_text"
+}
 
-	if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
-		echo -n "$next_text"
-	else
-		printf '{ "text": "%s", "class": "%s" }\n' "$next_text" "$nextprayer"
-	fi
+waybar-status() {
+	settimes
+	local remain
+	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M")
+	local next_text="$nextprayer in $remain"
+	printf '{ "text": "%s", "class": "%s" }' "$next_text" "$nextprayer"
 }
 
 case "$1" in
@@ -216,6 +219,9 @@ status)
 yad)
 	yad-toggle
 	;;
+waybar)
+	waybar-status
+	;;
 *)
 	echo "Usage: $(basename "$0") [command]"
 	echo "Command:"
@@ -228,6 +234,7 @@ yad)
 	echo "  remaining  Get the remaining time for the next prayer"
 	echo "  status     Get the status message indicating the next prayer"
 	echo "  yad        Toggle the yad window showing prayer times"
+	echo "  waybar     Print waybar JSON-formatted status"
 	exit 1
 	;;
 esac
