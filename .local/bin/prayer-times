@@ -6,17 +6,37 @@ lat='30.001780'
 long='31.290419'
 # Calculation Method: https://api.aladhan.com/v1/methods
 method='5'
+# Print Text Language (en/ar)
+print_lang="ar"
 # ----------------------- #
-prayers=("Fajr" "Dhuhr" "Asr" "Maghrib" "Isha")
 prayers_json="$HOME/.local/share/prayers.json"
-declare -A epochtimes
+prayers=("Fajr" "Dhuhr" "Asr" "Maghrib" "Isha")
 declare -A date
+declare -A epochtimes
+declare -A prayers_ar
+prayers_ar=(
+	["Fajr"]="الفجر"
+	["Sunrise"]="الشروق"
+	["Dhuhr"]="الظهر"
+	["Asr"]="العصر"
+	["Maghrib"]="المغرب"
+	["Isha"]="العشاء"
+)
 date=(
 	[day_idx]=$(($(date +%-d) - 1))
 	[weekday]=$(date +%a)
 	[month]=$(date +%-m)
 	[year]=$(date +%Y)
 )
+
+nameof() {
+	if [[ "$print_lang" != "en" ]]; then
+		local array_name="prayers_$print_lang"
+		eval "echo -n \${${array_name}[$1]}"
+	else
+		echo -n "$1"
+	fi
+}
 
 check() {
 	local available_month
@@ -58,13 +78,21 @@ timeof() {
 hijri() {
 	case "$1" in
 	weekday)
-		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.ar" "$prayers_json")"
+		if [[ "$print_lang" == "ar" ]]; then
+			echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.ar" "$prayers_json")"
+		else
+			echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.en" "$prayers_json")"
+		fi
 		;;
 	day)
 		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.day" "$prayers_json")"
 		;;
 	month)
-		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.ar" "$prayers_json")"
+		if [[ "$print_lang" == "ar" ]]; then
+			echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.ar" "$prayers_json")"
+		else
+			echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.en" "$prayers_json")"
+		fi
 		;;
 	year)
 		echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.year" "$prayers_json")"
@@ -120,27 +148,69 @@ settimes() {
 }
 
 print() {
-	printf "📅 %s،%s\n۞ الفجر\t%s\n۞ الشروق\t%s\n۞ الظهر\t%s\n۞ العصر\t%s\n۞ المغرب\t%s\n۞ العشاء\t%s" \
+	local format="📅 %s،%s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n"
+	if [[ "$print_lang" == "ar" ]]; then
+		format="📅 %s،%s\n%s%11s\n%s%10s\n%s%11s\n%s%11s\n%s%10s\n%s%10s\n"
+	fi
+
+	printf "$format" \
 		"$(hijri weekday)" \
 		"$(hijri day)-$(hijri month)-$(hijri year)" \
-		"$(timeof Fajr)" \
-		"$(timeof Sunrise)" \
-		"$(timeof Dhuhr)" \
-		"$(timeof Asr)" \
-		"$(timeof Maghrib)" \
-		"$(timeof Isha)"
+		"۞ $(nameof Fajr)" "$(timeof Fajr)" \
+		"۞ $(nameof Sunrise)" "$(timeof Sunrise)" \
+		"۞ $(nameof Dhuhr)" "$(timeof Dhuhr)" \
+		"۞ $(nameof Asr)" "$(timeof Asr)" \
+		"۞ $(nameof Maghrib)" "$(timeof Maghrib)" \
+		"۞ $(nameof Isha)" "$(timeof Isha)"
 }
 
-yad-text() {
-	printf "<span font-size='large'>📅 <b>%s،%s</b>\n۞ الفجر\t\t%s\n۞ الشروق\t%s\n۞ الظهر\t\t%s\n۞ العصر\t\t%s\n۞ المغرب\t%s\n۞ العشاء\t\t%s</span>" \
-		"$(hijri weekday)" \
-		"$(hijri day)-$(hijri month)-$(hijri year)" \
-		"$(timeof Fajr)" \
-		"$(timeof Sunrise)" \
-		"$(timeof Dhuhr)" \
-		"$(timeof Asr)" \
-		"$(timeof Maghrib)" \
-		"$(timeof Isha)"
+yad-en() {
+	yad \
+		--text-width=10 \
+		--on-top \
+		--text \
+		"<span font-size='large'><b>📅 $(hijri weekday),$(hijri day)-$(hijri month)-$(hijri year)</b></span>" \
+		--list \
+		--width=250 \
+		--height=240 \
+		--title="Prayers" \
+		--column="Prayer" \
+		--column="Time" \
+		--expand-column=1 \
+		--no-buttons \
+		--no-click \
+		--no-selection \
+		"<span font-size='large'>۞ $(nameof Fajr)</span>" "<span font-size='large'>$(timeof Fajr)</span>" \
+		"<span font-size='large'>۞ $(nameof Sunrise)</span>" "<span font-size='large'>$(timeof Sunrise)</span>" \
+		"<span font-size='large'>۞ $(nameof Dhuhr)</span>" "<span font-size='large'>$(timeof Dhuhr)</span>" \
+		"<span font-size='large'>۞ $(nameof Asr)</span>" "<span font-size='large'>$(timeof Asr)</span>" \
+		"<span font-size='large'>۞ $(nameof Maghrib)</span>" "<span font-size='large'>$(timeof Maghrib)</span>" \
+		"<span font-size='large'>۞ $(nameof Isha)</span>" "<span font-size='large'>$(timeof Isha)</span>"
+}
+
+yad-ar() {
+	yad \
+		--text-width=10 \
+		--on-top \
+		--text-align='right' \
+		--text \
+		"<span font-size='large'><b>📅 $(hijri weekday),$(hijri day)-$(hijri month)-$(hijri year)</b></span>" \
+		--list \
+		--width=250 \
+		--height=240 \
+		--title="Prayers" \
+		--column="الوقت" \
+		--column="الصلاة" \
+		--expand-column=1 \
+		--no-buttons \
+		--no-click \
+		--no-selection \
+		"<span font-size='large'>$(timeof Fajr)</span>" "<span font-size='large'>$(nameof Fajr)</span>" \
+		"<span font-size='large'>$(timeof Sunrise)</span>" "<span font-size='large'>$(nameof Sunrise)</span>" \
+		"<span font-size='large'>$(timeof Dhuhr)</span>" "<span font-size='large'>$(nameof Dhuhr)</span>" \
+		"<span font-size='large'>$(timeof Asr)</span>" "<span font-size='large'>$(nameof Asr)</span>" \
+		"<span font-size='large'>$(timeof Maghrib)</span>" "<span font-size='large'>$(nameof Maghrib)</span>" \
+		"<span font-size='large'>$(timeof Isha)</span>" "<span font-size='large'>$(nameof Isha)</span>"
 }
 
 yad-toggle() {
@@ -151,7 +221,7 @@ yad-toggle() {
 	fi
 
 	if [[ -z "$yad_pid" ]]; then
-		yad --no-buttons --text-width=10 --text "$(yad-text)" --title "Prayers"
+		eval "yad-$print_lang"
 	else
 		kill "$yad_pid"
 	fi
