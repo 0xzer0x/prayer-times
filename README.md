@@ -23,7 +23,7 @@
 
 1. Copy files to their corresponding location on your system
 2. Modify the location latitude and longitude in `.local/bin/prayer-times` to match your location
-3. Set the print lang in `.local/bin/prayer-times` (Options: `en`, `ar`)
+3. Set the print lang in `.local/bin/prayer-times` (options: `en`, `ar`)
 4. Activate systemd user unit
 5. Add statusbar module
 6. Add notification daemon rule
