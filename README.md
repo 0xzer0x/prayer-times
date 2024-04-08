@@ -1,9 +1,9 @@
 # Statusbar Prayer Times
 
-![polybar module](screenshots/polybar-module.png)
+![Statusbar Module](screenshots/module.png)
 <br/>
-![yad en](screenshots/yad-en-widget.png)
-![yad widget](screenshots/yad-widget.png)
+![yad EN](screenshots/yad-en.png)
+![yad AR](screenshots/yad-ar.png)
 
 - The prayer times script is inspired by [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts. In Addition, I added support for statusbars like [waybar](https://github.com/Alexays/Waybar) and desktop notifications.
 
@@ -23,10 +23,11 @@
 
 1. Copy files to their corresponding location on your system
 2. Modify the location latitude and longitude in `.local/bin/prayer-times` to match your location
-3. Activate systemd user unit
-4. Add statusbar module
-5. Add notification daemon rule
-6. Configure Yad dialog to show in floating mode
+3. Set the print lang in `.local/bin/prayer-times` (Options: `en`, `ar`)
+4. Activate systemd user unit
+5. Add statusbar module
+6. Add notification daemon rule
+7. Configure Yad dialog to show in floating mode
 
 ### Systemd Unit
 

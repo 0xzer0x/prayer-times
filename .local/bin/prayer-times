@@ -164,15 +164,15 @@ print() {
 		"۞ $(nameof Isha)" "$(timeof Isha)"
 }
 
-yad-en() {
+yad-def() {
 	yad \
 		--text-width=10 \
 		--on-top \
 		--text \
 		"<span font-size='large'><b>📅 $(hijri weekday),$(hijri day)-$(hijri month)-$(hijri year)</b></span>" \
 		--list \
-		--width=250 \
-		--height=240 \
+		--width=300 \
+		--height=250 \
 		--title="Prayers" \
 		--column="Prayer" \
 		--column="Time" \
@@ -180,12 +180,12 @@ yad-en() {
 		--no-buttons \
 		--no-click \
 		--no-selection \
-		"<span font-size='large'>۞ $(nameof Fajr)</span>" "<span font-size='large'>$(timeof Fajr)</span>" \
-		"<span font-size='large'>۞ $(nameof Sunrise)</span>" "<span font-size='large'>$(timeof Sunrise)</span>" \
-		"<span font-size='large'>۞ $(nameof Dhuhr)</span>" "<span font-size='large'>$(timeof Dhuhr)</span>" \
-		"<span font-size='large'>۞ $(nameof Asr)</span>" "<span font-size='large'>$(timeof Asr)</span>" \
-		"<span font-size='large'>۞ $(nameof Maghrib)</span>" "<span font-size='large'>$(timeof Maghrib)</span>" \
-		"<span font-size='large'>۞ $(nameof Isha)</span>" "<span font-size='large'>$(timeof Isha)</span>"
+		"<span font-size='large'>$(nameof Fajr)</span>" "<span font-size='large'>$(timeof Fajr)</span>" \
+		"<span font-size='large'>$(nameof Sunrise)</span>" "<span font-size='large'>$(timeof Sunrise)</span>" \
+		"<span font-size='large'>$(nameof Dhuhr)</span>" "<span font-size='large'>$(timeof Dhuhr)</span>" \
+		"<span font-size='large'>$(nameof Asr)</span>" "<span font-size='large'>$(timeof Asr)</span>" \
+		"<span font-size='large'>$(nameof Maghrib)</span>" "<span font-size='large'>$(timeof Maghrib)</span>" \
+		"<span font-size='large'>$(nameof Isha)</span>" "<span font-size='large'>$(timeof Isha)</span>"
 }
 
 yad-ar() {
@@ -221,7 +221,12 @@ yad-toggle() {
 	fi
 
 	if [[ -z "$yad_pid" ]]; then
-		eval "yad-$print_lang"
+		if [[ "$print_lang" == "ar" ]]; then
+			yad-ar
+		else
+			yad-def
+		fi
+
 	else
 		kill "$yad_pid"
 	fi
