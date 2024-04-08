@@ -139,6 +139,7 @@ settimes() {
 timeto() {
 	[[ "$#" -lt "1" ]] && echo "atleast 1 argument are needed" && return 1
 	settimes
+	local remain
 	remain="$((epochtimes["${1,,}"] - epochtimes[now]))"
 	[[ "$remain" -lt "0" ]] && remain="$((remain + 86400))"
 	date -u -d"@$remain" "+${2:-%H:%M}"
@@ -259,6 +260,29 @@ waybar-status() {
 	printf '{ "text": "%s", "class": "%s" }' "$next_text" "$nextprayer"
 }
 
+sub-timeto() {
+	if [[ -n "$1" ]]; then
+		if [[ "$1" == "next" ]]; then
+			valid=1
+		else
+			for p in "${prayers[@],,}"; do
+				if [[ "${1,,}" == "$p" ]]; then
+					valid=1
+					break
+				fi
+			done
+		fi
+	fi
+
+	if [[ -z "$valid" ]]; then
+		IFS='|'
+		echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
+		exit 1
+	fi
+
+	timeto "$1"
+}
+
 case "$1" in
 check)
 	check
@@ -292,26 +316,8 @@ waybar)
 	waybar-status
 	;;
 timeto)
-	if [[ -n "$2" ]]; then
-		if [[ "$2" == "next" ]]; then
-			valid=1
-		else
-			for p in "${prayers[@]}"; do
-				if [[ "${2^}" == "$p" ]]; then
-					valid=1
-					break
-				fi
-			done
-		fi
-	fi
-
-	if [[ -z "$valid" ]]; then
-		IFS='|'
-		echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
-		exit 1
-	fi
-
-	timeto "$2"
+	shift
+	sub-timeto "$@"
 	;;
 *)
 	echo "Usage: $(basename "$0") [command]"
