@@ -116,30 +116,28 @@ settimes() {
 		[isha]=$(timeof Isha %s)
 	)
 
+	local nxt_idx=0
+	local curr_idx=4
 	for i in {4..0}; do
 		local prayer_key="${prayers[$i],,}"
-
 		if [[ "${epochtimes[now]}" -ge "${epochtimes[$prayer_key]}" ]]; then
-			local nxt_idx=$((i + 1))
-			[[ "$nxt_idx" -ge "5" ]] && nxt_idx=0
-			local next_key="${prayers[$nxt_idx],,}"
-
-			epochtimes[next]="${epochtimes[$next_key]}"
-			currentprayer="${prayers[i]}"
-			nextprayer="${prayers[$nxt_idx]}"
-			if [[ "$nxt_idx" == "1" && "${date[weekday]}" == "Fri" ]]; then
-				nextprayer="Jumuaa"
-			fi
-
+			[[ "$i" -lt "4" ]] && curr_idx=$i && nxt_idx=$((i + 1))
 			break
 		fi
 	done
+
+	local next_key="${prayers[$nxt_idx],,}"
+	epochtimes[next]="${epochtimes[$next_key]}"
+	currentprayer="${prayers[$curr_idx]}"
+	nextprayer="${prayers[$nxt_idx]}"
+	if [[ "$nxt_idx" == "1" && "${date[weekday]}" == "Fri" ]]; then
+		nextprayer="Jumuaa"
+	fi
 }
 
 timeto() {
 	[[ "$#" -lt "1" ]] && echo "atleast 1 argument are needed" && return 1
 	settimes
-	local remain
 	remain="$((epochtimes["${1,,}"] - epochtimes[now]))"
 	[[ "$remain" -lt "0" ]] && remain="$((remain + 86400))"
 	date -u -d"@$remain" "+${2:-%H:%M}"
@@ -260,29 +258,6 @@ waybar-status() {
 	printf '{ "text": "%s", "class": "%s" }' "$next_text" "$nextprayer"
 }
 
-sub-timeto() {
-	if [[ -n "$1" ]]; then
-		if [[ "$1" == "next" ]]; then
-			valid=1
-		else
-			for p in "${prayers[@],,}"; do
-				if [[ "${1,,}" == "$p" ]]; then
-					valid=1
-					break
-				fi
-			done
-		fi
-	fi
-
-	if [[ -z "$valid" ]]; then
-		IFS='|'
-		echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
-		exit 1
-	fi
-
-	timeto "$1"
-}
-
 case "$1" in
 check)
 	check
@@ -316,8 +291,26 @@ waybar)
 	waybar-status
 	;;
 timeto)
-	shift
-	sub-timeto "$@"
+	if [[ -n "$2" ]]; then
+		if [[ "$2" == "next" ]]; then
+			valid=1
+		else
+			for p in "${prayers[@]}"; do
+				if [[ "${2^}" == "$p" ]]; then
+					valid=1
+					break
+				fi
+			done
+		fi
+	fi
+
+	if [[ -z "$valid" ]]; then
+		IFS='|'
+		echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
+		exit 1
+	fi
+
+	timeto "$2"
 	;;
 *)
 	echo "Usage: $(basename "$0") [command]"
