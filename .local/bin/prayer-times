@@ -116,35 +116,32 @@ settimes() {
 		[isha]=$(timeof Isha %s)
 	)
 
-	if [[ ${epochtimes[now]} -ge ${epochtimes[fajr]} && ${epochtimes[now]} -lt ${epochtimes[dhuhr]} ]]; then
-		epochtimes[next]=${epochtimes[dhuhr]}
-		currentprayer="Fajr"
-		if [[ "${date[weekday]}" == "Fri" ]]; then
-			nextprayer="Jumuaa"
-		else
-			nextprayer="Dhuhr"
+	for i in {4..0}; do
+		local prayer_key="${prayers[$i],,}"
+
+		if [[ "${epochtimes[now]}" -ge "${epochtimes[$prayer_key]}" ]]; then
+			local nxt_idx=$((i + 1))
+			[[ "$nxt_idx" -ge "5" ]] && nxt_idx=0
+			local next_key="${prayers[$nxt_idx],,}"
+
+			epochtimes[next]="${epochtimes[$next_key]}"
+			currentprayer="${prayers[i]}"
+			nextprayer="${prayers[$nxt_idx]}"
+			if [[ "$nxt_idx" == "1" && "${date[weekday]}" == "Fri" ]]; then
+				nextprayer="Jumuaa"
+			fi
+
+			break
 		fi
+	done
+}
 
-	elif [[ ${epochtimes[now]} -ge ${epochtimes[dhuhr]} && ${epochtimes[now]} -lt ${epochtimes[asr]} ]]; then
-		epochtimes[next]=${epochtimes[asr]}
-		currentprayer="Dhuhr"
-		nextprayer="Asr"
-
-	elif [[ ${epochtimes[now]} -ge ${epochtimes[asr]} && ${epochtimes[now]} -lt ${epochtimes[maghrib]} ]]; then
-		epochtimes[next]=${epochtimes[maghrib]}
-		currentprayer="Asr"
-		nextprayer="Maghrib"
-
-	elif [[ ${epochtimes[now]} -ge ${epochtimes[maghrib]} && ${epochtimes[now]} -lt ${epochtimes[isha]} ]]; then
-		epochtimes[next]=${epochtimes[isha]}
-		currentprayer="Maghrib"
-		nextprayer="Isha"
-
-	elif [[ ${epochtimes[now]} -ge ${epochtimes[isha]} || ${epochtimes[now]} -lt ${epochtimes[fajr]} ]]; then
-		epochtimes[next]=${epochtimes[fajr]}
-		currentprayer="Isha"
-		nextprayer="Fajr"
-	fi
+timeto() {
+	[[ "$#" -lt "1" ]] && echo "atleast 1 argument are needed" && return 1
+	settimes
+	remain="$((epochtimes["${1,,}"] - epochtimes[now]))"
+	[[ "$remain" -lt "0" ]] && remain="$((remain + 86400))"
+	date -u -d"@$remain" "+${2:-%H:%M}"
 }
 
 print() {
@@ -244,23 +241,20 @@ next() {
 
 remaining() {
 	settimes
-	local remain
-	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M:%S")
-	echo "$remain"
+	timeto next "%H:%M:%S"
 }
 
 status() {
 	settimes
 	local remain
-	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M")
-	local next_text="$nextprayer in $remain"
-	echo "$next_text"
+	remain="$(timeto next)"
+	echo "$nextprayer in $remain"
 }
 
 waybar-status() {
 	settimes
 	local remain
-	remain=$(date -u -d "@$((epochtimes[next] - epochtimes[now]))" "+%H:%M")
+	remain="$(timeto next)"
 	local next_text="$nextprayer in $remain"
 	printf '{ "text": "%s", "class": "%s" }' "$next_text" "$nextprayer"
 }
@@ -297,6 +291,28 @@ yad)
 waybar)
 	waybar-status
 	;;
+timeto)
+	if [[ -n "$2" ]]; then
+		if [[ "$2" == "next" ]]; then
+			valid=1
+		else
+			for p in "${prayers[@]}"; do
+				if [[ "${2^}" == "$p" ]]; then
+					valid=1
+					break
+				fi
+			done
+		fi
+	fi
+
+	if [[ -z "$valid" ]]; then
+		IFS='|'
+		echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
+		exit 1
+	fi
+
+	timeto "$2"
+	;;
 *)
 	echo "Usage: $(basename "$0") [command]"
 	echo "Command:"
@@ -308,6 +324,7 @@ waybar)
 	echo "  next       Get the next prayer"
 	echo "  remaining  Get the remaining time for the next prayer"
 	echo "  status     Get the status message indicating the next prayer"
+	echo "  timeto     Get the time remaining for a prayer"
 	echo "  yad        Toggle the yad window showing prayer times"
 	echo "  waybar     Print waybar JSON-formatted status"
 	exit 1
