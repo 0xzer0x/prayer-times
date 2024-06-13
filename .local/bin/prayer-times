@@ -8,6 +8,8 @@ long='31.290419'
 method='5'
 # Print Text Language (en/ar)
 print_lang="ar"
+# Notifcation Daemon
+notify="mako"
 # ----------------------- #
 prayers_json="$HOME/.local/share/prayers.json"
 prayers=("Fajr" "Dhuhr" "Asr" "Maghrib" "Isha")
@@ -66,7 +68,11 @@ add-jobs() {
 
 	for prayer in "${prayers[@]}"; do
 		echo "-- creating at job for $prayer prayer"
-		printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$kill_cmd" | at -q p "$(timeof "$prayer" '%H:%M %F')"
+		if [[ "$notify" == "mako" ]]; then
+			printf 'dunstify -t 30000 --icon="clock-applet-symbolic" "Prayer Times" "It is time for %s prayer 🕌"' "$prayer" | at -q p "$(timeof "$prayer" '%H:%M %F')"
+		else
+			printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "It is time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$kill_cmd" | at -q p "$(timeof "$prayer" '%H:%M %F')"
+		fi
 	done
 }
 

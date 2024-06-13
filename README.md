@@ -22,12 +22,16 @@
 ### Procedures
 
 1. Copy files to their corresponding location on your system
-2. Modify the location latitude and longitude in `.local/bin/prayer-times` to match your location
-3. Set the print lang in `.local/bin/prayer-times` (options: `en`, `ar`)
-4. Activate systemd user unit
-5. Add statusbar module
-6. Add notification daemon rule
-7. Configure Yad dialog to show in floating mode
+2. Set the parameters for the script
+   - `lat`: latitude
+   - `long`: longitude
+   - `method`: calculation method
+   - `print_lang`: language to print prayer times schedule in (`ar`/`en`)
+   - `notify`: notification daemon (`mako`/`dunst`)
+3. Activate systemd user unit
+4. Add statusbar module
+5. Add notification daemon rule
+6. Configure Yad dialog to show in floating mode
 
 ### Systemd Unit
 
@@ -64,6 +68,8 @@ label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A
 }
 ```
 
+- You can style the module using the class of the next prayer (e.g. `Asr`)
+
 ### Notification Athan
 
 #### Dunst
@@ -84,6 +90,7 @@ script = "/home/USERNAME/.local/bin/play-athan"
 ```ini
 [summary="Prayer Times"]
 on-notify=exec $HOME/.local/bin/play-athan
+on-button-left=exec bash -c "kill -1 \$(ps aux | grep "[q]atami" | awk '{print \$2}')"
 ```
 
 ### Yad Dialog
