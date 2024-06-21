@@ -90,7 +90,7 @@ script = "/home/USERNAME/.local/bin/play-athan"
 ```ini
 [summary="Prayer Times"]
 on-notify=exec $HOME/.local/bin/play-athan
-on-button-left=exec bash -c "kill -1 \$(ps aux | grep "[q]atami" | awk '{print \$2}')"
+on-button-left=exec bash -c "kill -1 \$(ps aux | grep \"[q]atami\" | awk '{print \$2}')"
 ```
 
 ### Yad Dialog
