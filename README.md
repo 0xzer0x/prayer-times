@@ -13,11 +13,12 @@
 - `at`
 - `yad`
 - `mpv`
+- `xargs`
 - `dunst` (x11)
 - `polybar` (x11)
 - `mako` (wayland)
 - `waybar` (wayland)
-- [Nerd Font](https://www.nerdfonts.com/) (optional)
+- [Nerd Font](https://www.nerdfonts.com/) (recommended)
 
 ### Procedures
 
