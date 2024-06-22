@@ -56,7 +56,7 @@ check() {
 }
 
 add-jobs() {
-	local kill_cmd="ps --no-headers -C mpv -o pid,args | grep 'qatami' | cut -d' ' -f2 | xargs -r kill -1"
+	local kill_cmd="ps --no-headers -C mpv -o pid:1,args:1 | grep 'qatami' | cut -d' ' -f1 | xargs -r kill -1"
 
 	# WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT (ADJUST ACCORDINGLY)
 	echo "-- removing all jobs in queue 'p'"
