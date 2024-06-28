@@ -9,10 +9,11 @@
 
 ### Dependencies
 
-- `wget`
+- `jq`
 - `at`
 - `yad`
 - `mpv`
+- `curl`
 - `xargs`
 - `dunst` (x11)
 - `polybar` (x11)
@@ -76,12 +77,11 @@ label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A
 #### Dunst
 
 - Add the following rule to your dunstrc file (`~/.config/dunst/dunstrc`)
-- Replace `USERNAME` with your account username
 
 ```ini
 [play_athan]
 summary = "Prayer Times"
-script = "/home/USERNAME/.local/bin/play-athan"
+script = "$HOME/.local/bin/play-athan"
 ```
 
 #### Mako (Wayland)
@@ -91,7 +91,7 @@ script = "/home/USERNAME/.local/bin/play-athan"
 ```ini
 [summary="Prayer Times"]
 on-notify=exec $HOME/.local/bin/play-athan
-on-button-left=exec bash -c "kill -1 \$(ps aux | grep \"[q]atami\" | awk '{print \$2}')"
+on-button-left=exec bash -c "ps --no-headers -C mpv -o pid:1,args:1 | grep 'qatami' | cut -d' ' -f1 | xargs -r kill -1"
 ```
 
 ### Yad Dialog
