@@ -1,5 +1,5 @@
 [Unit]
-Description=A job to retrive prayer times using wget
+Description=Sync prayer times calendar and add at jobs 
 
 [Service]
 Type=simple

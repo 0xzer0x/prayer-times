@@ -1,5 +1,5 @@
 [Unit]
-Description=Schedule the fetching of prayer times every 8 hours
+Description=Schedule the syncing of prayer times every 8 hours
 RefuseManualStart=false
 RefuseManualStop=false
 
