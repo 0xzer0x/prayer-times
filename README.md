@@ -1,4 +1,4 @@
-# Statusbar Prayer Times
+# 🌙 Statusbar Prayer Times
 
 ![Statusbar Module](screenshots/module.png)
 <br/>
@@ -7,7 +7,22 @@
 
 - The prayer times script is inspired by [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts. In Addition, I added support for statusbars like [waybar](https://github.com/Alexays/Waybar) and desktop notifications.
 
-### Dependencies
+### 🚀 Quick Start
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/0xzer0x/statusbar-prayers.git
+```
+
+2. Run the install script
+
+```bash
+cd statusbar-prayers
+./install.sh
+```
+
+### 📦 Dependencies
 
 - `jq`
 - `at`
@@ -21,7 +36,7 @@
 - `waybar` (wayland)
 - [Nerd Font](https://www.nerdfonts.com/) (recommended)
 
-### Procedures
+### 🔧 Procedures
 
 1. Copy files to their corresponding location on your system
 2. Set the parameters for the script
@@ -35,13 +50,13 @@
 5. Add notification daemon rule
 6. Configure Yad dialog to show in floating mode
 
-### Systemd Unit
+### 🔄 Systemd Unit
 
 - Run one of the following commands to activate the service for your user
   - `systemctl --user enable --now prayer-times.service # start on boot`
   - `systemctl --user enable --now prayer-times.timer # start on boot + every 8 hours`
 
-### Statusbar Module
+### 🖥️ Statusbar Module
 
 #### Polybar
 
@@ -72,7 +87,7 @@ label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A
 
 - You can style the module using the class of the next prayer (e.g. `Asr`)
 
-### Notification Athan
+### 🔔 Notification Athan
 
 #### Dunst
 
@@ -94,7 +109,7 @@ on-notify=exec $HOME/.local/bin/play-athan
 on-button-left=exec bash -c "ps --no-headers -C mpv -o pid:1,args:1 | grep 'qatami' | cut -d' ' -f1 | xargs -r kill -1"
 ```
 
-### Yad Dialog
+### 🖼️ Yad Dialog
 
 - Window Title: `Prayers`
 - Configure your window manager to show the Yad window in floating mode and you're all set!
@@ -105,11 +120,11 @@ windowrulev2 = float,class:(yad)
 windowrulev2 = move cursor -50% 30,title:(Prayers)
 ```
 
-### References
+### 📚 References
 
 - Nofarah Tech | نوفرة تك ([video](https://www.youtube.com/watch?v=BnSXo5p1ZLw)) ([dotfiles](https://github.com/HishamAHai/dotfiles/tree/main/.local/bin))
 - [Aladhan API](https://aladhan.com/prayer-times-api#GetTimings)
 - [Polybar config](https://github.com/polybar/polybar/wiki/Module:-script)
 - [Default dunstrc](https://github.com/dunst-project/dunst/blob/master/dunstrc)
-- [Mako(5)](https://github.com/emersion/mako/blob/master/doc/mako.5.scd)
+- [Mako man page](https://github.com/emersion/mako/blob/master/doc/mako.5.scd)
 - [Waybar Custom Module](https://github.com/Alexays/Waybar/wiki/Module:-Custom)
