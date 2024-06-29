@@ -9,7 +9,6 @@ b_CRER="\033[1;31m" # bold error color
 b_CWAR="\033[1;33m" # bold warning color
 
 # variable declarations
-declare systemd_unit="timer"
 declare bar=""
 declare print_lang=""
 declare daemon=""
@@ -17,7 +16,33 @@ declare lat=""
 declare long=""
 declare method=""
 declare dist=""
+declare systemd_unit="timer"
 declare -a dep_list=("curl" "at" "yad" "mpv" "findutils" "jq")
+declare -A methods=(
+	[3]="Muslim World League"
+	[2]="Islamic Society of North America (ISNA)"
+	[5]="Egyptian General Authority of Survey"
+	[4]="Umm Al-Qura University, Makkah"
+	[1]="University of Islamic Sciences, Karachi"
+	[7]="Institute of Geophysics, University of Tehran"
+	[0]="Shia Ithna-Ashari, Leva Institute, Qum"
+	[8]="Gulf Region"
+	[9]="Kuwait"
+	[10]="Qatar"
+	[11]="Majlis Ugama Islam Singapura, Singapore"
+	[12]="Union Organization Islamic de France"
+	[13]="Diyanet İşleri Başkanlığı, Turkey (experimental)"
+	[14]="Spiritual Administration of Muslims of Russia"
+	[15]="Moonsighting Committee Worldwide (Moonsighting.com)"
+	[16]="Dubai (experimental)"
+	[17]="Jabatan Kemajuan Islam Malaysia (JAKIM)"
+	[18]="Tunisia"
+	[19]="Algeria"
+	[20]="Kementerian Agama Republik Indonesia"
+	[21]="Morocco"
+	[22]="Comunidade Islamica de Lisboa"
+	[23]="Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan"
+)
 
 prompt() {
 	case ${1} in
@@ -58,53 +83,112 @@ detect_os() {
 	fi
 }
 
-set_opts() {
-	prompt -s "-- statusbar --\n"
-	local PS3="choose statusbar: "
+select_method() {
+	local choice=""
+	while [[ -z "$choice" ]]; do
+		for k in "${!methods[@]}"; do
+			echo -e "${b_CGSC}id:${CDEF} ${k} - ${b_CGSC}name:${CDEF} ${methods[$k]}"
+		done
+		prompt -i "Select calculation method: "
+		read -r choice
+		# reset choice if method does not exist
+		[[ -z "${methods[${choice:-null}]:+exists}" ]] && prompt -w "Chosen method does not exist.\n" && choice=""
+	done
+	method="$choice"
+}
+
+select_bar() {
+	local PS3="Choose statusbar: "
+	local choice=""
 	select choice in waybar polybar; do
-		dep_list+=("$choice")
-		bar="$choice"
-		break
+		if [[ -n "$choice" ]]; then
+			printf "%s" "$choice"
+			break
+		fi
 	done
+}
 
-	prompt -s "-- notification daemon --\n"
-	PS3="choose notification daemon: "
+select_notification() {
+	local PS3="Choose notification daemon: "
+	local choice=""
 	select choice in dunst mako; do
-		dep_list+=("$choice")
-		daemon="$choice"
-		break
+		if [[ -n "$choice" ]]; then
+			printf "%s" "$choice"
+			break
+		fi
 	done
+}
 
-	prompt -s "-- systemd unit --\n"
-	PS3="choose systemd unit: "
+select_unit() {
+	local PS3="Choose systemd unit: "
 	select choice in boot timer; do
-		systemd_unit="$choice"
-		break
+		if [[ -n "$choice" ]]; then
+			printf "%s" "$choice"
+			break
+		fi
 	done
+}
 
-	prompt -s "-- prayer times language --\n"
-	PS3="choose language: "
+select_lang() {
+	local PS3="Choose language: "
 	select choice in en ar; do
-		print_lang="$choice"
-		break
+		if [[ -n "$choice" ]]; then
+			printf "%s" "$choice"
+			break
+		fi
 	done
+}
 
-	prompt -s "-- calculation method (https://api.aladhan.com/v1/methods) --\n"
-	while [[ -z "$method" ]]; do
-		prompt -i "Enter calculation method: "
-		read -r method
-	done
-
-	prompt -s "-- coordinates (https://www.mapcoordinates.net/en) --\n"
+set_coordinates() {
 	while [[ -z "$lat" ]]; do
-		prompt -i "Enter latitude: "
-		read -r lat
+		read -r -p "Enter latitude: " lat
 	done
 	while [[ -z "$long" ]]; do
-		prompt -i "Enter longitude: "
-		read -r long
+		read -r -p "Enter longitude: " long
 	done
+}
 
+print_opts() {
+	prompt -s "-- options --\n"
+	cat <<EOF
+Statusbar: $bar
+Notifications: $daemon
+Unit: $systemd_unit
+Language: $print_lang
+Coordinates: $lat - $long
+Method: $method - ${methods[$method]}
+EOF
+}
+
+set_opts() {
+	while true; do
+		prompt -i "-- statusbar --\n"
+		bar=$(select_bar)
+		dep_list+=("$bar")
+
+		prompt -i "-- notification daemon --\n"
+		daemon=$(select_notification)
+		dep_list+=("$daemon")
+
+		prompt -i "-- systemd unit --\n"
+		systemd_unit=$(select_unit)
+
+		prompt -i "-- prayer times language --\n"
+		print_lang=$(select_lang)
+
+		prompt -i "-- calculation method (https://api.aladhan.com/v1/methods) --\n"
+		select_method
+
+		prompt -i "-- coordinates (https://www.mapcoordinates.net/en) --\n"
+		set_coordinates
+
+		print_opts
+		prompt -w "Confirm? [Y/n] "
+		local confirm
+		read -r confirm
+		[[ "$confirm" =~ ^([nN][oO]|[nN])$ ]] && continue
+		break
+	done
 }
 
 install_deps() {
@@ -135,7 +219,7 @@ install_deps() {
 }
 
 install_scripts() {
-	prompt -s "-- installing scripts --\n"
+	prompt -s "[+] installing scripts\n"
 	mkdir -p "/home/$USER/.local/bin"
 	for sc in ./.local/bin/*; do
 		prompt -i "installing $sc to ~/.local/bin\n"
@@ -145,7 +229,7 @@ install_scripts() {
 }
 
 install_systemd_unit() {
-	prompt -s "-- installing systemd unit --\n"
+	prompt -s "[+] installing systemd unit\n"
 	mkdir -p "/home/$USER/.config/systemd/user"
 	cp ./.config/systemd/user/prayer-times.service ~/.config/systemd/user/
 
@@ -166,7 +250,7 @@ install_systemd_unit() {
 }
 
 set_script_params() {
-	prompt -s "-- setting script parameters --\n"
+	prompt -s "[+] setting script parameters\n"
 	sed -i "s/^lat='.*'$/lat='$lat'/" ~/.local/bin/prayer-times
 	prompt -i "-> changed latitude\n"
 	sed -i "s/^long='.*'$/long='$long'/" ~/.local/bin/prayer-times
@@ -182,7 +266,7 @@ set_script_params() {
 print_statusbar_config() {
 	case "$bar" in
 	polybar)
-		prompt -i "Add the following module to your polybar config\n"
+		prompt -s "[+] Add the following module to your polybar config\n"
 		cat <<EOF
 [module/prayers]
 type = custom/script
@@ -192,7 +276,7 @@ label = %{A:\$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{
 EOF
 		;;
 	waybar)
-		prompt -i "Add the following module to your waybar config\n"
+		prompt -s "[+] Add the following module to your waybar config\n"
 		cat <<EOF
 "custom/prayers": {
   "interval": 60,
@@ -210,7 +294,7 @@ EOF
 print_daemon_config() {
 	case "$daemon" in
 	mako)
-		prompt -i "Add the following criteria/rule to your mako config\n"
+		prompt -s "[+] Add the following criteria/rule to your mako config\n"
 		cat <<EOF
 [summary="Prayer Times"]
 on-notify=exec \$HOME/.local/bin/play-athan
@@ -218,7 +302,7 @@ on-button-left=exec bash -c "ps --no-headers -C mpv -o pid:1,args:1 | grep 'qata
 EOF
 		;;
 	dunst)
-		prompt -i "Add the following criteria/rule to your dunst config\n"
+		prompt -s "[+] Add the following criteria/rule to your dunst config\n"
 		cat <<EOF
 [play_athan]
 summary = "Prayer Times"
@@ -231,11 +315,11 @@ EOF
 
 trap 'prompt -e "script failed at line $LINENO"' ERR
 
-# detect_os
+detect_os
 set_opts
-# install_deps
-# install_scripts
-# set_script_params
-# install_systemd_unit
+install_deps
+install_scripts
+set_script_params
+install_systemd_unit
 print_statusbar_config
 print_daemon_config
