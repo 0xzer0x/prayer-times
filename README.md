@@ -1,11 +1,18 @@
-# 🌙 Statusbar Prayer Times
-
-![Statusbar Module](screenshots/module.png)
+<div align='center'>
+<h2>🌙 Prayer Times</h2>
+<img alt="waybar module" src="screenshots/module.png"/>
 <br/>
-![yad EN](screenshots/yad-en.png)
-![yad AR](screenshots/yad-ar.png)
+<img alt="Yad EN" src="screenshots/yad-en.png"/>
+<img alt="Yad AR" src="screenshots/yad-ar.png"/>
+</div>
 
-- The prayer times script is inspired by [Nofarah Tech](https://www.youtube.com/@NofarahTech) prayer times scripts. In Addition, I added support for statusbars like [waybar](https://github.com/Alexays/Waybar) and desktop notifications.
+A versatile Bash script designed to manage and display Islamic prayer times. It
+retrieves prayer schedules based on the user's geographical coordinates and
+provides notifications for each prayer. The script supports multiple languages
+and integrates seamlessly with notification daemons like **dunst** and **mako**.
+
+Inspired by [Nofarah Tech](https://www.youtube.com/@NofarahTech)'s prayer times scripts, this version also includes
+added support for status bars like [Waybar](https://github.com/Alexays/Waybar) and integrated desktop notifications.
 
 ### 🚀 Quick Start
 
