@@ -19,13 +19,13 @@ added support for status bars like [Waybar](https://github.com/Alexays/Waybar) a
 1. Clone the repo
 
 ```bash
-git clone https://github.com/0xzer0x/statusbar-prayers.git
+git clone https://github.com/0xzer0x/prayer-times.git
 ```
 
 2. Run the install script
 
 ```bash
-cd statusbar-prayers
+cd prayer-times
 ./install.sh
 ```
 
