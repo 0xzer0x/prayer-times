@@ -36,7 +36,6 @@ cd prayer-times
 - `yad`
 - `mpv`
 - `curl`
-- `xargs`
 - `dunst` (x11)
 - `polybar` (x11)
 - `mako` (wayland)
@@ -103,7 +102,7 @@ label = %{A:$HOME/.local/bin/prayer-times yad:}%{F#83CAFA}󱠧 %{F-} %output%%{A
 ```ini
 [play_athan]
 summary = "Prayer Times"
-script = "$HOME/.local/bin/play-athan"
+script = "$HOME/.local/bin/toggle-athan"
 ```
 
 #### Mako (Wayland)
@@ -112,8 +111,8 @@ script = "$HOME/.local/bin/play-athan"
 
 ```ini
 [summary="Prayer Times"]
-on-notify=exec $HOME/.local/bin/play-athan
-on-button-left=exec bash -c "ps --no-headers -C mpv -o pid:1,args:1 | grep 'qatami' | cut -d' ' -f1 | xargs -r kill -1"
+on-notify=exec $HOME/.local/bin/toggle-athan
+on-button-left=exec $HOME/.local/bin/toggle-athan
 ```
 
 ### 🖼️ Yad Dialog

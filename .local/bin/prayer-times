@@ -56,8 +56,6 @@ check() {
 }
 
 add-jobs() {
-  local kill_cmd="pgrep -f 'mpv.*qatami' | xargs -r kill -1"
-
   # WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT (ADJUST ACCORDINGLY)
   echo "-- removing all jobs in queue 'p'"
   if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
@@ -71,7 +69,7 @@ add-jobs() {
     if [[ "$notify" == "mako" ]]; then
       printf 'notify-send -t 30000 --icon="clock-applet-symbolic" "Prayer Times" "It is time for %s prayer 🕌"' "$prayer" | at -q p "$(timeof "$prayer" '%H:%M %F')"
     else
-      printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "Time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$kill_cmd" | at -q p "$(timeof "$prayer" '%H:%M %F')"
+      printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "Time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$HOME/.local/bin/toggle-athan" | at -q p "$(timeof "$prayer" '%H:%M %F')"
     fi
   done
 }

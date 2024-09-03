@@ -1,0 +1,8 @@
+#!/bin/bash
+
+athan_pid="$(pgrep -f 'mpv.*qatami_takbeer.mp3')"
+if [[ -z "$athan_pid" ]]; then
+  mpv --no-audio-display --volume=100 "$HOME"/.local/share/qatami_takbeer.mp3
+else
+  kill -1 "$athan_pid"
+fi
