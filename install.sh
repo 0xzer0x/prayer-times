@@ -15,6 +15,7 @@ declare daemon=""
 declare lat=""
 declare long=""
 declare method=""
+declare mawaqit_masjid_id=""
 declare dist=""
 declare systemd_unit="timer"
 declare -a dep_list=("curl" "at" "yad" "mpv" "jq")
@@ -42,6 +43,7 @@ declare -A methods=(
   [21]="Morocco"
   [22]="Comunidade Islamica de Lisboa"
   [23]="Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan"
+  [99]="Mawaqit Mosque (Enter Mosque ID)"
 )
 
 prompt() {
@@ -91,6 +93,11 @@ select_method() {
     done
     prompt -i "Select calculation method: "
     read -r choice
+    # Check if Mawaqit is selected
+    if [[ "$choice" == "99" ]]; then
+      prompt -i "Enter Mawaqit mosque ID: "
+      read -r mawaqit_masjid_id
+    fi
     # reset choice if method does not exist
     [[ -z "${methods[${choice:-null}]:+exists}" ]] && prompt -w "Chosen method does not exist.\n" && choice=""
   done
@@ -157,6 +164,7 @@ Unit: $systemd_unit
 Language: $print_lang
 Coordinates: $lat - $long
 Method: $method - ${methods[$method]}
+Mawaqit ID: ${mawaqit_masjid_id:-Not applicable}
 EOF
 }
 
@@ -176,11 +184,13 @@ set_opts() {
     prompt -i "-- prayer times language --\n"
     print_lang=$(select_lang)
 
-    prompt -i "-- calculation method (https://api.aladhan.com/v1/methods) --\n"
+    prompt -i "-- calculation method (https://api.aladhan.com/v1/methods) OR Mawaqit mosque ID --\n"
     select_method
 
-    prompt -i "-- coordinates (https://www.mapcoordinates.net/en) --\n"
-    set_coordinates
+    if [[ "$method" != "99" ]]; then
+      prompt -i "-- coordinates (https://www.mapcoordinates.net/en) --\n"
+      set_coordinates
+    fi
 
     print_opts
     prompt -w "Confirm? [Y/n] "
@@ -261,6 +271,12 @@ set_script_params() {
   prompt -i "-> changed prayer schedule language\n"
   sed -i "s/^notify='.*'$/notify='$daemon'/" ~/.local/bin/prayer-times
   prompt -i "-> changed notification daemon\n"
+
+  # Set Mawaqit ID if applicable
+  if [[ "$method" == "99" ]]; then
+    sed -i "s/^mawaqit_masjid_id='.*'$/mawaqit_masjid_id='$mawaqit_masjid_id'/" ~/.local/bin/prayer-times
+    prompt -i "-> set Mawaqit mosque ID\n"
+  fi
 }
 
 print_statusbar_config() {

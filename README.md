@@ -130,6 +130,7 @@ windowrulev2 = move cursor -50% 30,title:(Prayers)
 
 - Nofarah Tech | نوفرة تك ([video](https://www.youtube.com/watch?v=BnSXo5p1ZLw)) ([dotfiles](https://github.com/HishamAHai/dotfiles/tree/main/.local/bin))
 - [Aladhan API](https://aladhan.com/prayer-times-api#GetTimings)
+- [Mawaqit Scraper](https://github.com/mrsofiane/mawaqit-api/blob/main/scraping/script.py)
 - [Polybar config](https://github.com/polybar/polybar/wiki/Module:-script)
 - [Default dunstrc](https://github.com/dunst-project/dunst/blob/master/dunstrc)
 - [Mako man page](https://github.com/emersion/mako/blob/master/doc/mako.5.scd)
